@@ -1,0 +1,732 @@
+/* ==========================================================================
+   Forever Ink · Hoja de estilos del proyecto (tema manga: tinta negra, tramas y viñetas)
+   --------------------------------------------------------------------------
+   Se apoya en Bootstrap 5: aquí solo se sobrescriben variables y se agregan
+   las clases propias del proyecto (todas con nombres en español).
+
+   Buenas prácticas aplicadas (material 1.2.4 y 1.2.6):
+   - Una sola hoja de estilos propia (menos peticiones HTTP).
+   - Formato estándar: una propiedad por línea.
+   - Sin estilos en línea en los componentes: todo vive aquí.
+   - Mobile first: los estilos base son para celular y las media queries
+     usan min-width para ir agregando cambios en pantallas más grandes.
+
+   TABLA DE CONTENIDO (sección · línea donde comienza)
+    1. Variables                                           35
+    2. Base                                                67
+    3. Botones y formularios                               113
+    4. Títulos, textos y contenedores                      167
+    5. Cabecera de la tienda                               204
+    6. Pie de página                                       279
+    7. Carrusel de portada                                 316
+    8. Tarjetas e imágenes                                 360
+    9. Home                                                465
+   10. Detalle de producto                                 483
+   11. Migas de pan y mensajes                             526
+   12. Carrito y checkout                                  545
+   13. Páginas informativas y blog                         579
+   14. Avisos y boleta                                     605
+   15. Panel de administración                             622
+   16. Puntos de interrupción · mobile first               686
+   17. Impresión                                           720
+   ========================================================================== */
+
+
+/* 1. VARIABLES: paleta del estudio y ajustes de Bootstrap
+   ========================================================================== */
+:root {
+  --tf-tinta: #111111;
+  --tf-papel: #ffffff;
+  --tf-crema: #f6f5f1;
+  --tf-linea: #e4e2dc;
+  --tf-suave: #6b6a66;
+  --tf-borde-campo: #cfccc4;
+  --tf-alerta: #fffbea;
+  --tf-alerta-borde: #e0a800;
+  --tf-acento: #e3263b;          /* rojo manga: precios, etiquetas y detalles */
+  --tf-acento-oscuro: #c11d30;
+  --tf-trama: #dcdcdc;           /* puntos de la trama (screentone) del fondo */
+  --tf-sombra: 5px 5px 0 #111111; /* sombra dura de viñeta de cómic */
+
+  --bs-body-font-family: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bs-body-font-weight: 400;
+  --bs-body-color: var(--tf-tinta);
+  --bs-body-bg: var(--tf-papel);
+  --bs-link-color: var(--tf-tinta);
+  --bs-link-color-rgb: 17, 17, 17;
+  --bs-link-hover-color: #000000;
+  --bs-border-color: var(--tf-linea);
+  --bs-border-radius: 2px;
+  --bs-border-radius-sm: 2px;
+  --bs-border-radius-lg: 2px;
+  /* Bootstrap usa esta variable en .text-muted: así no hace falta !important */
+  --bs-secondary-color: var(--tf-suave);
+}
+
+
+/* 2. BASE: tipografía, enlaces, imágenes y accesibilidad
+   ========================================================================== */
+body {
+  letter-spacing: 0.01em;
+}
+
+h1,
+h2,
+h3,
+.titulo-seccion,
+.logo-nombre {
+  font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
+  font-weight: 400;
+}
+
+/* Trama de puntos (screentone) de fondo, como en las páginas de manga */
+#contenido {
+  background-image: radial-gradient(var(--tf-trama) 1.2px, transparent 1.4px);
+  background-size: 10px 10px;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* Imágenes responsivas (1.2.6): se adaptan al ancho sin pasar su tamaño original */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tf-tinta);
+  outline-offset: 2px;
+}
+
+.saltar-contenido {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 3000;
+  padding: 0.5rem 1rem;
+  background: var(--tf-papel);
+}
+
+
+/* 3. BOTONES Y FORMULARIOS
+   ========================================================================== */
+.btn {
+  border-radius: 0;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.btn-dark {
+  --bs-btn-bg: var(--tf-tinta);
+  --bs-btn-border-color: var(--tf-tinta);
+  box-shadow: 3px 3px 0 var(--tf-acento);
+}
+
+.btn-dark:hover {
+  box-shadow: 1px 1px 0 var(--tf-acento);
+  transform: translate(2px, 2px);
+}
+
+.btn-outline-dark {
+  --bs-btn-color: var(--tf-tinta);
+  --bs-btn-border-color: var(--tf-tinta);
+  border-width: 2px;
+}
+
+.form-control,
+.form-select {
+  border-radius: 0;
+  border-color: var(--tf-borde-campo);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--tf-tinta);
+  box-shadow: 0 0 0 0.15rem rgba(17, 17, 17, 0.12);
+}
+
+.etiqueta-campo {
+  margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tf-suave);
+}
+
+.campo-cantidad {
+  width: 6rem;
+}
+
+.campo-filtro {
+  max-width: 16rem;
+}
+
+
+/* 4. TÍTULOS, TEXTOS Y CONTENEDORES
+   ========================================================================== */
+.titulo-seccion {
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+  letter-spacing: 0.02em;
+}
+
+.sobretitulo {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--tf-acento);
+}
+
+.sobretitulo::before {
+  content: '◆ ';
+}
+
+.enlace-sutil {
+  color: var(--tf-tinta);
+  text-decoration: none;
+  border-bottom: 1px solid var(--tf-tinta);
+}
+
+/* Contenedores angostos para leer cómodo (blog, compra exitosa, pago fallido) */
+.contenedor-lectura {
+  max-width: 48.75rem;
+}
+
+.contenedor-angosto {
+  max-width: 51.25rem;
+}
+
+
+/* 5. CABECERA DE LA TIENDA
+   ========================================================================== */
+.barra-tienda {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: var(--tf-papel);
+  border-bottom: 1px solid var(--tf-linea);
+}
+
+.logo-nombre {
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.buscador {
+  min-width: 13.75rem;
+  max-width: 32.5rem;
+}
+
+.barra-menu {
+  padding: 0;
+  background: var(--tf-tinta);
+}
+
+.barra-menu .nav-link,
+.barra-menu .nav-link.active {
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tf-papel);
+}
+
+.barra-menu .nav-link.active {
+  border-bottom: 3px solid var(--tf-acento);
+}
+
+/* El ícono hamburguesa de Bootstrap es oscuro: se invierte para verlo sobre la barra negra */
+.barra-menu .navbar-toggler {
+  filter: invert(1);
+}
+
+.pill-carrito {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  color: var(--tf-papel);
+  text-decoration: none;
+  background: var(--tf-acento);
+  border: 2px solid var(--tf-papel);
+  border-radius: 999px;
+}
+
+.pill-carrito:hover {
+  color: var(--tf-papel);
+  background: var(--tf-acento-oscuro);
+}
+
+.pill-cantidad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  font-size: 0.75rem;
+  color: var(--tf-papel);
+  background: var(--tf-tinta);
+  border-radius: 999px;
+}
+
+
+/* 6. PIE DE PÁGINA
+   ========================================================================== */
+.pie-tienda {
+  /* Bootstrap usa esta variable en .text-muted: así el texto gris se lee sobre el fondo negro */
+  --bs-secondary-color: #bdbdbd;
+  color: var(--tf-papel);
+  background: var(--tf-tinta);
+  border-top: 4px solid var(--tf-acento);
+}
+
+.pie-tienda img {
+  filter: invert(1);
+}
+
+/* Sobre el fondo negro, el botón principal pasa a rojo para que se vea */
+.pie-tienda .btn-dark {
+  --bs-btn-bg: var(--tf-acento);
+  --bs-btn-border-color: var(--tf-acento);
+  --bs-btn-hover-bg: var(--tf-acento-oscuro);
+  --bs-btn-hover-border-color: var(--tf-acento-oscuro);
+  box-shadow: 3px 3px 0 var(--tf-papel);
+}
+
+.pie-tienda a {
+  color: var(--tf-papel);
+  text-decoration: none;
+}
+
+.pie-tienda a:hover {
+  text-decoration: underline;
+}
+
+.pie-tienda address {
+  font-style: normal;
+}
+
+
+/* 7. CARRUSEL DE PORTADA (base = celular: el texto va bajo la imagen)
+   ========================================================================== */
+/* Fondo con líneas de velocidad (como en las viñetas de acción del manga) */
+.carrusel-portada {
+  background: var(--tf-papel) repeating-conic-gradient(from 0deg at 72% 50%, var(--tf-papel) 0deg 4deg, #ececec 4deg 6deg);
+  border-bottom: 3px solid var(--tf-tinta);
+}
+
+.carrusel-portada .carousel-caption {
+  position: static;
+  max-width: none;
+  padding: 1rem 1.25rem 2.5rem;
+  color: var(--tf-tinta);
+  text-align: left;
+  background: var(--tf-papel);
+}
+
+/* El título va dentro de un "globo" de texto con borde grueso y sombra dura */
+.carrusel-portada .carousel-caption h2 {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  font-size: clamp(1.3rem, 2.6vw, 2.2rem);
+  background: var(--tf-papel);
+  border: 3px solid var(--tf-tinta);
+  box-shadow: var(--tf-sombra);
+}
+
+/* La imagen es 3:1: las flechas se limitan a su altura para no tapar el título */
+.carrusel-portada .carousel-control-prev,
+.carrusel-portada .carousel-control-next {
+  bottom: auto;
+  height: 33.333vw;
+}
+
+.carrusel-portada .carousel-control-prev-icon,
+.carrusel-portada .carousel-control-next-icon {
+  filter: invert(1);
+}
+
+.carrusel-portada .carousel-indicators [data-bs-target] {
+  background-color: var(--tf-tinta);
+}
+
+
+/* 8. TARJETAS E IMÁGENES
+   ========================================================================== */
+.card {
+  border: 2px solid var(--tf-tinta);
+  border-radius: 0;
+}
+
+.marco-imagen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--tf-papel);
+}
+
+.marco-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.tarjeta-producto:hover .marco-imagen img,
+.tarjeta-categoria:hover .marco-imagen img {
+  transform: scale(1.04);
+}
+
+/* Tarjetas como viñetas de manga: borde grueso, sombra dura y una leve inclinación */
+.tarjeta-producto,
+.tarjeta-categoria,
+.tarjeta-blog {
+  border-width: 3px;
+  box-shadow: var(--tf-sombra);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta-producto .marco-imagen,
+.tarjeta-categoria .marco-imagen,
+.tarjeta-blog .marco-imagen {
+  border-bottom: 3px solid var(--tf-tinta);
+}
+
+.row > div:nth-child(odd) .tarjeta-producto,
+.row > div:nth-child(odd) .tarjeta-categoria {
+  transform: rotate(-0.8deg);
+}
+
+.row > div:nth-child(even) .tarjeta-producto,
+.row > div:nth-child(even) .tarjeta-categoria {
+  transform: rotate(0.8deg);
+}
+
+.row > div .tarjeta-producto:hover,
+.row > div .tarjeta-categoria:hover,
+.tarjeta-blog:hover {
+  box-shadow: 7px 7px 0 var(--tf-acento);
+  transform: rotate(0) translate(-2px, -2px);
+}
+
+.tarjeta-categoria,
+.tarjeta-blog {
+  color: var(--tf-tinta);
+}
+
+.tarjeta-blog .marco-imagen {
+  aspect-ratio: 16 / 7;
+}
+
+/* Nombres largos de estilo (ej. "Cybersigilism") caben en una línea con 5 columnas */
+.tarjeta-categoria .card-title {
+  font-size: 1.05rem;
+}
+
+/* Etiqueta "Oferta" como un sello rojo inclinado */
+.insignia-oferta {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tf-papel);
+  background: var(--tf-acento);
+  border: 2px solid var(--tf-tinta);
+  border-radius: 0;
+  transform: rotate(-8deg);
+}
+
+.precio {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.precio-grande {
+  font-size: 1.8rem;
+}
+
+.precio-tachado {
+  font-size: 0.95rem;
+  color: var(--tf-suave);
+  text-decoration: line-through;
+}
+
+
+/* 9. HOME
+   ========================================================================== */
+.paso {
+  height: 100%;
+  padding: 1rem;
+  background: var(--tf-papel);
+  border: 3px solid var(--tf-tinta);
+  box-shadow: var(--tf-sombra);
+}
+
+.paso-numero {
+  font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
+  font-size: 2.6rem;
+  line-height: 1.1;
+  color: var(--tf-acento);
+}
+
+
+/* 10. DETALLE DE PRODUCTO
+   ========================================================================== */
+.ficha-tecnica {
+  margin-bottom: 1.5rem;
+}
+
+.ficha-fila {
+  display: flex;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--tf-linea);
+}
+
+.ficha-fila dt {
+  flex: 0 0 11rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--tf-suave);
+}
+
+.ficha-fila dd {
+  margin: 0;
+}
+
+.miniatura-galeria {
+  width: 4.5rem;
+  height: 4.5rem;
+  padding: 0;
+  background: var(--tf-crema);
+  border: 1px solid var(--tf-linea);
+}
+
+.miniatura-galeria.activa {
+  border-color: var(--tf-tinta);
+}
+
+.miniatura-galeria img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+/* 11. MIGAS DE PAN Y MENSAJES
+   ========================================================================== */
+.migas {
+  font-size: 0.85rem;
+}
+
+.migas .breadcrumb {
+  margin-bottom: 1rem;
+}
+
+.migas a {
+  color: var(--tf-suave);
+}
+
+.mensaje-vacio {
+  border: 1px dashed var(--tf-linea);
+}
+
+
+/* 12. CARRITO Y CHECKOUT
+   ========================================================================== */
+.miniatura {
+  object-fit: contain;
+  background: var(--tf-crema);
+  border: 1px solid var(--tf-linea);
+}
+
+.selector-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 9.5rem;
+}
+
+.selector-cantidad input {
+  text-align: center;
+}
+
+.resumen-orden {
+  padding: 1.5rem;
+  background: var(--tf-crema);
+  border: 1px solid var(--tf-linea);
+}
+
+.tabla-carrito th {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tf-suave);
+}
+
+
+/* 13. PÁGINAS INFORMATIVAS Y BLOG
+   ========================================================================== */
+.cuentas-demo,
+.ficha-estudio {
+  background: var(--tf-crema);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.75rem;
+  font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
+  font-size: 1.2rem;
+  border: 2px solid var(--tf-tinta);
+  border-radius: 50%;
+}
+
+.imagen-blog {
+  width: 100%;
+  border: 1px solid var(--tf-linea);
+}
+
+
+/* 14. AVISOS Y BOLETA
+   ========================================================================== */
+.contenedor-avisos {
+  z-index: 2000;
+}
+
+.aviso-toast {
+  border-radius: 0;
+}
+
+.boleta {
+  padding: 2rem;
+  background: var(--tf-papel);
+  border: 1px solid var(--tf-linea);
+}
+
+
+/* 15. PANEL DE ADMINISTRACIÓN (base = celular: menú horizontal arriba)
+   ========================================================================== */
+.panel-admin {
+  min-height: 100vh;
+  background: #fbfaf8;
+}
+
+.panel-cabecera {
+  background: var(--tf-papel);
+  border-bottom: 1px solid var(--tf-linea);
+}
+
+.panel-menu {
+  background: var(--tf-papel);
+  border-bottom: 1px solid var(--tf-linea);
+}
+
+.panel-menu .nav-link {
+  padding: 0.5rem 0.75rem;
+  color: var(--tf-tinta);
+}
+
+.panel-menu .nav-link.active {
+  color: var(--tf-papel);
+  background: var(--tf-tinta);
+}
+
+.tarjeta-resumen .valor-resumen {
+  font-family: 'Dela Gothic One', 'Arial Black', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+.tarjeta-resumen-alerta {
+  background: var(--tf-alerta);
+  border-color: var(--tf-alerta-borde);
+}
+
+/* Bootstrap pinta las celdas con esta variable: cambiarla evita usar !important */
+.fila-critica > td {
+  --bs-table-bg-state: var(--tf-alerta);
+}
+
+.barra-reporte {
+  height: 0.5rem;
+  margin-bottom: 0.125rem;
+  border-radius: 0;
+}
+
+.columna-monto {
+  width: 45%;
+}
+
+.table {
+  --bs-table-bg: transparent;
+}
+
+/* Las tablas con scroll horizontal contienen sus elementos ocultos (visually-hidden), así no
+   agrandan la página en celular */
+.table-responsive {
+  position: relative;
+}
+
+
+/* 16. PUNTOS DE INTERRUPCIÓN · MOBILE FIRST (mismos quiebres de Bootstrap)
+   ========================================================================== */
+
+/* Tablets horizontales, 768px y más (md) */
+@media only screen and (min-width: 768px) {
+  /* El texto del carrusel pasa a estar encima de la imagen, a la izquierda */
+  .carrusel-portada .carousel-caption {
+    position: absolute;
+    right: auto;
+    bottom: 50%;
+    left: 12%;
+    max-width: 42%;
+    padding: 1.25rem 0;
+    background: transparent;
+    transform: translateY(50%);
+  }
+
+  .carrusel-portada .carousel-control-prev,
+  .carrusel-portada .carousel-control-next {
+    bottom: 0;
+    height: auto;
+  }
+}
+
+/* Laptops y escritorio, 992px y más (lg) */
+@media only screen and (min-width: 992px) {
+  /* El menú del panel pasa a ser una barra lateral */
+  .panel-menu {
+    border-right: 1px solid var(--tf-linea);
+    border-bottom: 0;
+  }
+}
+
+
+/* 17. IMPRESIÓN (boleta en PDF)
+   Lo que no se imprime usa la clase d-print-none de Bootstrap en el JSX.
+   ========================================================================== */
+@media print {
+  body {
+    background: var(--tf-papel);
+  }
+
+  .boleta {
+    padding: 0;
+    border: 0;
+  }
+}
