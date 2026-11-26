@@ -1,6 +1,18 @@
-// Pasarela de pago simulada: espera un momento y responde aprobado o rechazado.
-// Es un objeto para poder reemplazar procesar() por un mock en las pruebas.
+/**
+ * Simulación de una pasarela de pago.
+ *
+ * El proyecto no tiene backend ni procesa pagos reales (así lo define el ERS). Este servicio
+ * imita la respuesta de una pasarela: tarda un momento y responde aprobado o rechazado.
+ *
+ * Se exporta como OBJETO (y no como función suelta) a propósito: así en las pruebas con
+ * Vitest se puede reemplazar su método por un mock (vi.fn()) y simular
+ * un pago aprobado o rechazado sin esperar ni depender de nada externo.
+ */
 export const pagosService = {
+  /**
+   * @param {{ total: number, resultado?: 'aprobado'|'rechazado' }} datos
+   * @returns {Promise<{ aprobado: boolean, referencia?: string, motivo?: string }>}
+   */
   procesar({ resultado = 'aprobado' }) {
     return new Promise((resolve) => {
       setTimeout(() => {

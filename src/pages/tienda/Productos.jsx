@@ -9,7 +9,11 @@ import { listarCategorias } from '../../services/categoriasService.js';
 
 const FILTROS_VACIOS = { texto: '', categoriaId: '', precioMax: '', soloOfertas: false, orden: 'relevancia' };
 
-// Catálogo con filtros. Lo que se busca en la barra llega por la URL (?q=texto).
+/**
+ * Catálogo completo con filtros. La búsqueda de la barra llega por la URL (?q=texto).
+ * Como en el material 2.2.1, los parámetros de búsqueda se leen con useLocation():
+ * location.search trae "?q=texto" y URLSearchParams permite pedir cada parámetro por nombre.
+ */
 export default function Productos({ onAgregar }) {
   const location = useLocation();
   const navegar = useNavigate();

@@ -1,13 +1,13 @@
 // Funciones pequeñas para mostrar datos con formato (precios, fechas, nombres).
 
-// 15000 -> "$15.000" (separador de miles con punto, como se usa en Chile).
+/** 15000 -> "$15.000" (separador de miles con punto, como se usa en Chile). */
 export function formatoCLP(valor) {
   const numero = Math.round(Number(valor) || 0);
   const signo = numero < 0 ? '-' : '';
   return signo + '$' + String(Math.abs(numero)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-// "2026-10-23" (o una fecha ISO con hora) -> "23-10-2026".
+/** "2026-10-23" (o una fecha ISO con hora) -> "23-10-2026". */
 export function formatoFecha(iso) {
   if (!iso) return '';
   const [anio, mes, dia] = String(iso).slice(0, 10).split('-');
@@ -20,7 +20,7 @@ const MESES = [
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
-// "2026-10-23" -> "viernes 23 de octubre de 2026".
+/** "2026-10-23" -> "viernes 23 de octubre de 2026". */
 export function formatoFechaLarga(iso) {
   if (!iso) return '';
   const fecha = new Date(String(iso).slice(0, 10) + 'T00:00:00');
@@ -28,14 +28,14 @@ export function formatoFechaLarga(iso) {
   return `${DIAS[fecha.getDay()]} ${fecha.getDate()} de ${MESES[fecha.getMonth()]} de ${fecha.getFullYear()}`;
 }
 
-// Devuelve la fecha de hoy (hora local) como "AAAA-MM-DD".
+/** Devuelve la fecha de hoy (hora local) como "AAAA-MM-DD". */
 export function fechaISO(fecha = new Date()) {
   const mes = String(fecha.getMonth() + 1).padStart(2, '0');
   const dia = String(fecha.getDate()).padStart(2, '0');
   return `${fecha.getFullYear()}-${mes}-${dia}`;
 }
 
-// Suma (o resta) días a una fecha "AAAA-MM-DD".
+/** Suma (o resta) días a una fecha "AAAA-MM-DD". */
 export function sumarDias(iso, dias) {
   const fecha = new Date(iso + 'T00:00:00');
   fecha.setDate(fecha.getDate() + dias);
@@ -52,11 +52,26 @@ export function inicial(persona) {
   return nombre.charAt(0).toUpperCase();
 }
 
-// Quita tildes y pasa a minúsculas, para buscar sin importar acentos ("lunar" = "Lúnar").
+/** Quita tildes y pasa a minúsculas, para buscar sin importar acentos ("lunar" = "Lúnar"). */
 export function normalizarTexto(texto) {
   return String(texto || '')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .trim();
+}
+
+/**
+ * Suma días HÁBILES (lunes a viernes) a una fecha 'aaaa-mm-dd'.
+ * Ej: un viernes + 3 días hábiles = el miércoles siguiente.
+ */
+export function sumarDiasHabiles(iso, dias) {
+  let fecha = iso;
+  let contados = 0;
+  while (contados < dias) {
+    fecha = sumarDias(fecha, 1);
+    const dia = new Date(`${fecha}T00:00:00`).getDay();
+    if (dia !== 0 && dia !== 6) contados += 1;
+  }
+  return fecha;
 }

@@ -1,6 +1,9 @@
 import { Button, Col, Form, Row } from 'react-bootstrap';
 
-// Filtros del catálogo: no guarda estado, avisa cada cambio con onCambiar(campo, valor).
+/**
+ * Panel de filtros del catálogo. Es un componente "controlado": no guarda estado propio,
+ * recibe los valores por props y avisa los cambios con onCambiar(campo, valor).
+ */
 export default function FiltrosProductos({ filtros, categorias, onCambiar, onLimpiar }) {
   return (
     <Form className="filtros-productos mb-4" aria-label="Filtros de diseños" onSubmit={(e) => e.preventDefault()}>

@@ -1,4 +1,8 @@
-// Productos: usa el CRUD de db.js y agrega ofertas, stock crítico, búsqueda y descuento de cupos.
+/**
+ * Servicio de productos (diseños de tatuaje).
+ * Usa el CRUD genérico de db.js y agrega las reglas propias del catálogo:
+ * ofertas y búsqueda con filtros. Los diseños no tienen stock: se pueden tatuar las veces que se quiera.
+ */
 import { listar, obtenerPorId, crear, actualizar, eliminar } from '../data/db.js';
 import { normalizarTexto } from '../utils/formato.js';
 
@@ -6,7 +10,7 @@ const COLECCION = 'productos';
 
 const tieneValor = (v) => v !== null && v !== undefined && v !== '';
 
-// precio que se cobra (el de oferta si hay)
+/** Precio que realmente paga el cliente (oferta si existe, si no el precio normal). */
 export function precioFinal(producto) {
   return estaEnOferta(producto) ? producto.precioOferta : producto.precio;
 }
@@ -15,12 +19,16 @@ export function estaEnOferta(producto) {
   return tieneValor(producto.precioOferta) && Number(producto.precioOferta) < Number(producto.precio);
 }
 
-// stock crítico: cuando el stock es igual o menor al stock crítico
-export function esStockCritico(producto) {
-  return tieneValor(producto.stockCritico) && Number(producto.stock) <= Number(producto.stockCritico);
+/**
+ * Texto del tamaño para mostrar: "7 x 6 cm" (ancho x alto). Recibe un diseño o un ítem del carrito.
+ * Si un registro antiguo todavía trae el tamaño como texto, se muestra ese texto.
+ */
+export function textoTamano(medidas) {
+  if (tieneValor(medidas?.anchoCm) && tieneValor(medidas?.altoCm)) return `${medidas.anchoCm} x ${medidas.altoCm} cm`;
+  return medidas?.tamano || 'Sin medida';
 }
 
-// pasa los valores del formulario (texto) a número, booleano, etc.
+/** Convierte lo que escribió el usuario en el formulario (texto) a los tipos correctos. */
 export function normalizarProducto(datos) {
   const aNumeroONulo = (v) => (tieneValor(v) ? Number(v) : null);
   return {
@@ -30,19 +38,20 @@ export function normalizarProducto(datos) {
     categoriaId: Number(datos.categoriaId),
     precio: Number(datos.precio),
     precioOferta: aNumeroONulo(datos.precioOferta),
-    stock: Number(datos.stock),
-    stockCritico: aNumeroONulo(datos.stockCritico),
-    tamano: String(datos.tamano || '').trim(),
+    anchoCm: aNumeroONulo(datos.anchoCm),
+    altoCm: aNumeroONulo(datos.altoCm),
     duracionHoras: aNumeroONulo(datos.duracionHoras),
     zonas: String(datos.zonas || '').trim(),
     nivelDolor: aNumeroONulo(datos.nivelDolor),
     colorTinta: String(datos.colorTinta || 'Negro').trim(),
     destacado: Boolean(datos.destacado),
-    imagen: String(datos.imagen || 'neko-chibi').trim(),
+    imagen: String(datos.imagen || 'panda-globo-corazon').trim(),
   };
 }
 
+// ---------------------------------------------------------------------------
 // CRUD
+// ---------------------------------------------------------------------------
 export function listarProductos() {
   return listar(COLECCION);
 }
@@ -51,25 +60,32 @@ export function obtenerProducto(id) {
   return obtenerPorId(COLECCION, id);
 }
 
-function codigoRepetido(codigo, idActual = null) {
-  return listarProductos().some(
-    (p) => p.codigo.toUpperCase() === String(codigo).trim().toUpperCase() && p.id !== Number(idActual),
-  );
+// Código de producto: lo asigna el sistema, no el administrador.
+// Formato FI-001, FI-002… Cada diseño nuevo toma el número siguiente al más alto que exista,
+// así nunca hay códigos repetidos ni escritos de distintas formas (fi-26, FI-0026…).
+export const PREFIJO_CODIGO = 'FI-';
+
+/** Código que recibirá el próximo diseño (por ejemplo FI-026 si el último es FI-025). */
+export function siguienteCodigoProducto() {
+  const mayor = listarProductos().reduce((max, p) => {
+    const numero = Number(String(p.codigo).replace(PREFIJO_CODIGO, ''));
+    return Number.isInteger(numero) ? Math.max(max, numero) : max;
+  }, 0);
+  return PREFIJO_CODIGO + String(mayor + 1).padStart(3, '0');
 }
 
-// Crea un producto. Devuelve { ok, producto } o { ok:false, error }.
+/** Crea un producto con el código siguiente. Devuelve { ok, producto } o { ok:false, error }. */
 export function crearProducto(datos) {
-  const producto = normalizarProducto(datos);
-  if (codigoRepetido(producto.codigo)) return { ok: false, error: 'Ya existe un producto con ese código.' };
+  const producto = { ...normalizarProducto(datos), codigo: siguienteCodigoProducto() };
   const imagenes = [producto.imagen];
   return { ok: true, producto: crear(COLECCION, { ...producto, imagenes }) };
 }
 
+/** Actualiza un producto. El código NO cambia: identifica al diseño para siempre. */
 export function actualizarProducto(id, datos) {
-  const producto = normalizarProducto(datos);
-  if (codigoRepetido(producto.codigo, id)) return { ok: false, error: 'Ya existe otro producto con ese código.' };
   const existente = obtenerProducto(id);
   if (!existente) return { ok: false, error: 'El producto no existe.' };
+  const producto = { ...normalizarProducto(datos), codigo: existente.codigo };
   const imagenes = existente.imagenes && existente.imagen === producto.imagen
     ? existente.imagenes
     : [producto.imagen];
@@ -80,7 +96,9 @@ export function eliminarProducto(id) {
   return eliminar(COLECCION, id);
 }
 
+// ---------------------------------------------------------------------------
 // Consultas de la tienda
+// ---------------------------------------------------------------------------
 export function productosEnOferta() {
   return listarProductos().filter(estaEnOferta);
 }
@@ -93,7 +111,7 @@ export function productosPorCategoria(categoriaId) {
   return listarProductos().filter((p) => p.categoriaId === Number(categoriaId));
 }
 
-// Otros diseños del mismo estilo (para la sección "Relacionados" del detalle).
+/** Otros diseños del mismo estilo (para la sección "Relacionados" del detalle). */
 export function productosRelacionados(producto, cantidad = 4) {
   return listarProductos()
     .filter((p) => p.id !== producto.id && p.categoriaId === producto.categoriaId)
@@ -101,12 +119,16 @@ export function productosRelacionados(producto, cantidad = 4) {
     .slice(0, cantidad);
 }
 
-// filtros: texto, categoriaId, precioMax, soloOfertas y orden
+/**
+ * Búsqueda con filtros.
+ * filtros: { texto, categoriaId, precioMax, soloOfertas, orden }
+ * orden: 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre'
+ */
 export function buscarProductos({ texto = '', categoriaId = '', precioMax = '', soloOfertas = false, orden = 'relevancia' } = {}) {
   const buscado = normalizarTexto(texto);
   let resultado = listarProductos().filter((p) => {
     if (buscado) {
-      const contenido = normalizarTexto(`${p.nombre} ${p.descripcion} ${p.zonas} ${p.tamano}`);
+      const contenido = normalizarTexto(`${p.nombre} ${p.descripcion} ${p.zonas} ${textoTamano(p)}`);
       if (!contenido.includes(buscado)) return false;
     }
     if (tieneValor(categoriaId) && p.categoriaId !== Number(categoriaId)) return false;
@@ -121,17 +143,3 @@ export function buscarProductos({ texto = '', categoriaId = '', precioMax = '', 
   return resultado;
 }
 
-// Productos cuyo stock llegó al nivel crítico (o menos).
-export function productosCriticos() {
-  return listarProductos().filter(esStockCritico);
-}
-
-// Resta cupos al pagar una reserva. items: [{ productoId, cantidad }]
-export function descontarCupos(items) {
-  items.forEach((item) => {
-    const producto = obtenerProducto(item.productoId);
-    if (producto) {
-      actualizar(COLECCION, producto.id, { stock: Math.max(0, producto.stock - item.cantidad) });
-    }
-  });
-}

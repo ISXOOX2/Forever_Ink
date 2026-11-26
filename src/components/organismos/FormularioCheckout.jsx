@@ -2,18 +2,36 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import CampoFormulario from '../moleculas/CampoFormulario.jsx';
 import useFormulario from '../../utils/useFormulario.js';
 import { validarFormularioCheckout, validarFechaCita } from '../../utils/validaciones.js';
-import { horasDisponibles } from '../../services/ordenesService.js';
+import { useEffect, useState } from 'react';
+import { horasDisponibles, horasLibresProximas } from '../../services/ordenesService.js';
+import { USAR_API } from '../../services/api.js';
+import { horasDisponiblesApi } from '../../services/reservasApi.js';
 import { TATUADORES } from '../../data/tatuadores.js';
-import { DIAS_MAXIMOS_AGENDA, HORAS_CITA } from '../../data/estudio.js';
+import {
+  DIAS_ALERTA_AGENDA, DIAS_MAXIMOS_AGENDA, HORAS_CITA, HORAS_LIBRES_CRITICAS, LADOS_CUERPO, ZONAS_CUERPO,
+} from '../../data/estudio.js';
 import { fechaISO, formatoCLP, sumarDias } from '../../utils/formato.js';
 
-// Datos del cliente y de la cita. onPagar solo se llama si el formulario es válido.
-export default function FormularioCheckout({ valoresIniciales, total, ordenId = null, procesando = false, onPagar }) {
+/**
+ * Datos del cliente + datos de la cita + simulación del pago.
+ * Props:
+ *  - valoresIniciales : datos para pre-llenar (usuario conectado o intento anterior).
+ *  - total            : monto a pagar (se muestra en el botón).
+ *  - ordenId          : si es un reintento, esa orden no bloquea sus propias horas.
+ *  - procesando       : true mientras se "paga" (deshabilita el botón).
+ *  - conCita          : false si el carrito solo tiene artículos de la tienda (no se agenda cita).
+ *  - onPagar(valores) : se llama solo si el formulario es válido.
+ */
+export default function FormularioCheckout({
+  valoresIniciales, total, ordenId = null, procesando = false, conCita = true, onPagar,
+}) {
   const hoy = fechaISO();
   const f = useFormulario(valoresIniciales, (datos) => {
-    const errores = validarFormularioCheckout(datos);
+    const errores = validarFormularioCheckout(datos, new Date(), { conCita });
+    if (!conCita) return errores;
     // Si la hora elegida ya no está disponible (otro cliente la tomó) se avisa.
-    if (!errores.hora && !errores.fecha && datos.tatuadorId &&
+    // (con backend, esta revisión la hace ms-reservas al crear la orden)
+    if (!USAR_API && !errores.hora && !errores.fecha && datos.tatuadorId &&
         !horasDisponibles(datos.fecha, datos.tatuadorId, ordenId).includes(datos.hora)) {
       errores.hora = 'Ese horario ya fue reservado. Elige otro.';
     }
@@ -22,8 +40,20 @@ export default function FormularioCheckout({ valoresIniciales, total, ordenId = 
 
   const { fecha, tatuadorId } = f.valores;
   const fechaValida = !validarFechaCita(fecha);
-  // Horarios libres para la fecha y el tatuador elegidos (se recalculan en cada render).
-  const horas = fechaValida && tatuadorId ? horasDisponibles(fecha, tatuadorId, ordenId) : [];
+  // Con backend, las horas libres se piden a ms-reservas cada vez que cambia la fecha o el tatuador.
+  const [horasApi, setHorasApi] = useState(null);
+  useEffect(() => {
+    if (!USAR_API || !fechaValida || !tatuadorId) return undefined;
+    let activo = true;
+    horasDisponiblesApi(fecha, tatuadorId)
+      .then((libres) => activo && setHorasApi(libres))
+      .catch(() => activo && setHorasApi([]));
+    return () => { activo = false; };
+  }, [fecha, tatuadorId, fechaValida]);
+
+  // Horarios libres para la fecha y el tatuador elegidos (sin backend se recalculan en cada render).
+  const horasLocales = fechaValida && tatuadorId ? horasDisponibles(fecha, tatuadorId, ordenId) : [];
+  const horas = USAR_API ? (fechaValida && tatuadorId ? horasApi ?? [] : []) : horasLocales;
 
   const enviar = (evento) => {
     evento.preventDefault();
@@ -43,12 +73,18 @@ export default function FormularioCheckout({ valoresIniciales, total, ordenId = 
     <Form onSubmit={enviar} noValidate aria-label="Datos de la reserva">
       <h2 className="h5 mb-3">Tus datos</h2>
       <Row>
-        <Col md={6}><CampoFormulario id="c-nombre" etiqueta="Nombre" maxLength={50} {...propsCampo('nombre')} /></Col>
-        <Col md={6}><CampoFormulario id="c-apellidos" etiqueta="Apellidos" maxLength={100} {...propsCampo('apellidos')} /></Col>
-        <Col md={6}><CampoFormulario id="c-correo" etiqueta="Correo electrónico" tipo="email" {...propsCampo('correo')} /></Col>
-        <Col md={6}><CampoFormulario id="c-telefono" etiqueta="Teléfono" tipo="tel" placeholder="+56912345678" {...propsCampo('telefono')} /></Col>
+        <Col md={6}><CampoFormulario id="c-nombre" etiqueta="Nombre" autoComplete="given-name" maxLength={50} {...propsCampo('nombre')} /></Col>
+        <Col md={6}><CampoFormulario id="c-apellidos" etiqueta="Apellidos" autoComplete="family-name" maxLength={100} {...propsCampo('apellidos')} /></Col>
+        <Col md={6}><CampoFormulario id="c-correo" etiqueta="Correo electrónico" autoComplete="email" tipo="email" {...propsCampo('correo')} /></Col>
+        <Col md={6}><CampoFormulario id="c-telefono" etiqueta="Teléfono" autoComplete="tel" tipo="tel" placeholder="+56912345678" {...propsCampo('telefono')} /></Col>
       </Row>
 
+      {!conCita && (
+        <p className="small text-muted">
+          Tu carrito solo tiene productos de la tienda: no necesitas agendar. Los retiras en el estudio de martes a sábado.
+        </p>
+      )}
+      {conCita && (<>
       <h2 className="h5 mt-3 mb-3">Tu cita</h2>
       <Row>
         <Col md={6}>
@@ -61,6 +97,12 @@ export default function FormularioCheckout({ valoresIniciales, total, ordenId = 
               <option key={t.id} value={t.id}>{t.nombre}</option>
             ))}
           </CampoFormulario>
+          {/* Aviso al cliente: si al tatuador le quedan pocas horas esta semana, se lo decimos */}
+          {tatuadorId && horasLibresProximas(tatuadorId) <= HORAS_LIBRES_CRITICAS && (
+            <p className="small text-warning-emphasis mt-n2 mb-3" role="status">
+              ¡Quedan pocas horas! Solo {horasLibresProximas(tatuadorId)} disponible(s) en los próximos {DIAS_ALERTA_AGENDA} días de atención.
+            </p>
+          )}
         </Col>
         <Col md={6}>
           <CampoFormulario
@@ -81,7 +123,17 @@ export default function FormularioCheckout({ valoresIniciales, total, ordenId = 
           </CampoFormulario>
         </Col>
         <Col md={6}>
-          <CampoFormulario id="c-zona" etiqueta="Zona del cuerpo" placeholder="Ej. antebrazo izquierdo" maxLength={60} {...propsCampo('zonaCuerpo')} />
+          {/* Zona: lista desplegable con las zonas del estudio (no se escribe a mano) */}
+          <CampoFormulario id="c-zona" etiqueta="Zona del cuerpo" tipo="select" {...propsCampo('zonaCuerpo')}>
+            <option value="">Elige la zona</option>
+            {ZONAS_CUERPO.map((z) => <option key={z} value={z}>{z}</option>)}
+          </CampoFormulario>
+        </Col>
+        <Col md={6}>
+          <CampoFormulario id="c-lado" etiqueta="Lado" tipo="select" opcional {...propsCampo('ladoCuerpo')}>
+            <option value="">Sin preferencia</option>
+            {LADOS_CUERPO.map((l) => <option key={l} value={l}>{l}</option>)}
+          </CampoFormulario>
         </Col>
         <Col xs={12}>
           <CampoFormulario
@@ -90,6 +142,7 @@ export default function FormularioCheckout({ valoresIniciales, total, ordenId = 
           />
         </Col>
       </Row>
+      </>)}
 
       <h2 className="h5 mt-3 mb-3">Pago (simulado)</h2>
       <p className="small text-muted">
