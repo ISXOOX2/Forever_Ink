@@ -12,23 +12,24 @@
      usan min-width para ir agregando cambios en pantallas más grandes.
 
    TABLA DE CONTENIDO (sección · línea donde comienza)
-    1. Variables                                           35
-    2. Base                                                67
-    3. Botones y formularios                               113
-    4. Títulos, textos y contenedores                      167
-    5. Cabecera de la tienda                               204
-    6. Pie de página                                       279
-    7. Carrusel de portada                                 316
-    8. Tarjetas e imágenes                                 360
-    9. Home                                                465
-   10. Detalle de producto                                 483
-   11. Migas de pan y mensajes                             526
-   12. Carrito y checkout                                  545
-   13. Páginas informativas y blog                         579
-   14. Avisos y boleta                                     605
-   15. Panel de administración                             622
-   16. Puntos de interrupción · mobile first               686
-   17. Impresión                                           720
+    1. Variables                                          36
+    2. Base                                               68
+    3. Botones y formularios                              114
+    4. Títulos, textos y contenedores                     174
+    5. Cabecera de la tienda                              211
+    6. Pie de página                                      286
+    7. Carrusel de portada                                323
+    8. Tarjetas e imágenes                                367
+    9. Home                                               473
+   10. Detalle de producto                                517
+   11. Migas de pan y mensajes                            560
+   12. Carrito y checkout                                 579
+   13. Páginas informativas y blog                        613
+   14. Avisos y boleta                                    639
+   15. Panel de administración                            656
+   16. Reseñas, tienda y Mi proyecto                      720
+   17. Puntos de interrupción · mobile first              802
+   18. Impresión                                          836
    ========================================================================== */
 
 
@@ -124,8 +125,14 @@ img {
   box-shadow: 3px 3px 0 var(--tf-acento);
 }
 
+/* Hover: la sombra se achica (el botón no se mueve, así no "tiembla" si el mouse queda en el borde).
+   Al presionarlo (:active) se hunde 2 px, como un botón real. */
 .btn-dark:hover {
   box-shadow: 1px 1px 0 var(--tf-acento);
+}
+
+.btn-dark:active {
+  box-shadow: 0 0 0 var(--tf-acento);
   transform: translate(2px, 2px);
 }
 
@@ -373,6 +380,13 @@ img {
   background: var(--tf-papel);
 }
 
+/* El enlace que envuelve la imagen ocupa todo el marco: sin esto "contain" no aplica y la foto se recorta */
+.marco-imagen > a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .marco-imagen img {
   width: 100%;
   height: 100%;
@@ -422,8 +436,9 @@ img {
   color: var(--tf-tinta);
 }
 
+/* Las imágenes del blog son infografías 4:3: se muestran completas, sin recortar */
 .tarjeta-blog .marco-imagen {
-  aspect-ratio: 16 / 7;
+  aspect-ratio: 4 / 3;
 }
 
 /* Nombres largos de estilo (ej. "Cybersigilism") caben en una línea con 5 columnas */
@@ -470,6 +485,32 @@ img {
   background: var(--tf-papel);
   border: 3px solid var(--tf-tinta);
   box-shadow: var(--tf-sombra);
+}
+
+.forma {
+  position: absolute;
+  color: var(--tf-acento);
+  font-size: 1.75rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.forma-1 {
+  top: -0.5rem;
+  right: 8%;
+}
+
+.forma-2 {
+  top: 1.5rem;
+  right: 3%;
+  font-size: 1.25rem;
+  color: var(--tf-tinta);
+}
+
+.forma-3 {
+  top: 2.5rem;
+  right: 14%;
+  font-size: 1rem;
 }
 
 .paso-numero {
@@ -683,7 +724,89 @@ img {
 }
 
 
-/* 16. PUNTOS DE INTERRUPCIÓN · MOBILE FIRST (mismos quiebres de Bootstrap)
+/* 16. RESEÑAS, TIENDA Y MI PROYECTO
+   ========================================================================== */
+.estrellas {
+  color: var(--tf-linea);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.estrellas-lg {
+  font-size: 1.5rem;
+}
+
+.estrella-llena {
+  color: var(--tf-acento);
+}
+
+.estrella-vacia {
+  color: var(--tf-borde-campo);
+}
+
+/* Selector de estrellas: los radio buttons están ocultos y la estrella es la etiqueta */
+.selector-estrellas {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.selector-estrellas label {
+  cursor: pointer;
+  padding: 0 0.1rem;
+}
+
+.selector-estrellas label:focus-within {
+  outline: 2px solid var(--tf-tinta);
+  outline-offset: 2px;
+}
+
+.tarjeta-resena blockquote {
+  font-size: 0.95rem;
+}
+
+.foto-resena {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-bottom: 2px solid var(--tf-tinta);
+}
+
+.etiqueta-barra {
+  width: 4.5rem;
+}
+
+.vista-previa {
+  display: block;
+  max-height: 12rem;
+  border: 2px solid var(--tf-tinta);
+}
+
+.miniatura-proyecto {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border: 2px solid var(--tf-tinta);
+}
+
+.nav-pills .nav-link {
+  color: var(--tf-tinta);
+  border: 2px solid var(--tf-tinta);
+}
+
+/* Mapa de Nosotros: borde de viñeta, como las tarjetas */
+.mapa-ubicacion .ratio {
+  border: 2px solid var(--tf-tinta);
+  box-shadow: var(--tf-sombra);
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--tf-tinta);
+  color: var(--tf-papel);
+}
+
+
+/* 17. PUNTOS DE INTERRUPCIÓN · MOBILE FIRST (mismos quiebres de Bootstrap)
    ========================================================================== */
 
 /* Tablets horizontales, 768px y más (md) */
@@ -717,7 +840,7 @@ img {
 }
 
 
-/* 17. IMPRESIÓN (boleta en PDF)
+/* 18. IMPRESIÓN (boleta en PDF)
    Lo que no se imprime usa la clase d-print-none de Bootstrap en el JSX.
    ========================================================================== */
 @media print {

@@ -12,8 +12,7 @@ export default function Footer({ mostrarAviso }) {
         <Row className="g-4">
           <Col md={4}>
             <Logo />
-            <p className="mt-3 text-muted small">{ESTUDIO.eslogan}</p>
-            <address className="small mb-0">
+            <address className="small mb-0 mt-3">
               {ESTUDIO.direccion}<br />
               {ESTUDIO.horario}<br />
               {ESTUDIO.telefono} · {ESTUDIO.correo}<br />
@@ -24,7 +23,9 @@ export default function Footer({ mostrarAviso }) {
             <h2 className="h6 text-uppercase">Explora</h2>
             <ul className="list-unstyled small">
               <li><Link to="/productos">Diseños</Link></li>
-              <li><Link to="/categorias">Estilos</Link></li>
+              <li><Link to="/mi-proyecto">Mi proyecto</Link></li>
+              <li><Link to="/tienda">Tienda</Link></li>
+              <li><Link to="/resenas">Reseñas</Link></li>
               <li><Link to="/ofertas">Ofertas</Link></li>
               <li><Link to="/blogs">Blog</Link></li>
             </ul>
@@ -42,10 +43,6 @@ export default function Footer({ mostrarAviso }) {
             <FormularioNewsletter mostrarAviso={mostrarAviso} />
           </Col>
         </Row>
-        <hr />
-        <p className="small text-muted text-center mb-0">
-          © {new Date().getFullYear()} {ESTUDIO.nombre}. Proyecto académico DSY1104 · Desarrollo Fullstack II · DuocUC.
-        </p>
       </Container>
     </footer>
   );

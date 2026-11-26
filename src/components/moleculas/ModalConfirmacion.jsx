@@ -1,7 +1,7 @@
 import { Modal } from 'react-bootstrap';
 import Boton from '../atomos/Boton.jsx';
 
-// Modal para confirmar antes de eliminar
+/** Ventana de confirmación (por ejemplo antes de eliminar). Solo se muestra si show es true. */
 export default function ModalConfirmacion({
   show,
   titulo = 'Confirmar acción',

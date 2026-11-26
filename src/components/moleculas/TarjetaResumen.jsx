@@ -1,6 +1,6 @@
 import { Card } from 'react-bootstrap';
 
-// Tarjeta de una cifra del dashboard (título, valor grande y nota opcional).
+/** Tarjeta de una cifra del dashboard (título, valor grande y nota opcional). */
 export default function TarjetaResumen({ titulo, valor, nota, destacada = false }) {
   return (
     <Card className={`tarjeta-resumen h-100 ${destacada ? 'tarjeta-resumen-alerta' : ''}`}>

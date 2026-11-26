@@ -13,7 +13,7 @@ const DIAPOSITIVAS = [
   {
     imagen: 'portada-2',
     titulo: 'Ofertas de temporada',
-    texto: 'Tribales, sigilos y más diseños con precio especial por cupos limitados.',
+    texto: 'Tribales, sigilos y más diseños con precio especial por tiempo limitado.',
     boton: 'Ver ofertas',
     to: '/ofertas',
   },
@@ -26,7 +26,7 @@ const DIAPOSITIVAS = [
   },
 ];
 
-// Carrusel del inicio
+/** Carrusel principal de la página de inicio (react-bootstrap Carousel). */
 export default function CarruselPortada() {
   return (
     <Carousel className="carrusel-portada" interval={6000} aria-label="Destacados del estudio">

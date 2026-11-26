@@ -1,6 +1,16 @@
 import { Form } from 'react-bootstrap';
 
-// Etiqueta + campo + mensaje de error. El error solo se muestra si viene en la prop.
+/**
+ * Campo de formulario reutilizable: etiqueta + control + mensaje de error.
+ *
+ * Props:
+ *  - id, etiqueta : identificador y texto de la etiqueta (accesible: <label for=id>)
+ *  - error        : texto del error; si viene vacío no se muestra nada (renderizado condicional)
+ *  - tipo         : 'text' (por defecto), 'email', 'password', 'date', 'number', 'select', 'textarea'
+ *  - opcional     : agrega "(opcional)" a la etiqueta
+ *  - ayuda        : texto de apoyo bajo el campo
+ *  - children     : las <option> cuando tipo es 'select'
+ */
 export default function CampoFormulario({
   id,
   etiqueta,

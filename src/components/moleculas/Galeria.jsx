@@ -1,7 +1,12 @@
+// ── PARA EXPLICAR (defensa) ───────────────────────────────────────────────
+// • useState(0) guarda cuál imagen se ve ahora (el "índice"). Es el ESTADO del componente.
+// • Al hacer clic en una miniatura se llama a setIndice(i): React cambia el estado y vuelve a
+//   dibujar el componente con la imagen nueva. Nunca se cambia `indice` directamente.
+// ───────────────────────────────────────────────────────────────────────────
 import { useState } from 'react';
 import images from '../../assets/images.js';
 
-// Galería de imágenes del diseño: una imagen grande y miniaturas para cambiarla.
+/** Galería de imágenes del diseño: una imagen grande y miniaturas para cambiarla. */
 export default function Galeria({ imagenes, nombre }) {
   const [indice, setIndice] = useState(0);
   const lista = imagenes && imagenes.length > 0 ? imagenes : [];
