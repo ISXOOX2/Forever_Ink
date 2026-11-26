@@ -6,7 +6,14 @@ import { validarFormularioUsuario } from '../../utils/validaciones.js';
 import { REGIONES, comunasDeRegion } from '../../data/regiones.js';
 import { TIPOS_USUARIO } from '../../services/usuariosService.js';
 
-// Se usa en el registro, en el panel (crear y editar) y en el perfil; "modo" define qué campos se piden.
+/**
+ * Formulario de usuario reutilizable. El prop "modo" cambia qué campos se piden:
+ *  - 'registro'      : cliente nuevo desde la tienda (confirma correo y contraseña).
+ *  - 'admin-nuevo'   : el administrador crea un usuario (elige el tipo).
+ *  - 'admin-editar'  : el administrador edita (la contraseña en blanco = no se cambia).
+ *  - 'perfil'        : el usuario edita sus propios datos (no puede cambiar RUN ni tipo).
+ * Props: modo, inicial (datos de partida) y onEnviar(datos) -> '' si salió bien o mensaje de error.
+ */
 export default function FormularioUsuario({ modo = 'registro', inicial = null, onEnviar, textoBoton }) {
   const esRegistro = modo === 'registro';
   const esEdicion = modo === 'admin-editar' || modo === 'perfil';
@@ -38,10 +45,11 @@ export default function FormularioUsuario({ modo = 'registro', inicial = null, o
     f.cambiar('comuna', ''); // al cambiar de región, la comuna anterior ya no corresponde
   };
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     if (!f.intentarEnviar()) return;
-    setErrorGeneral(onEnviar(f.valores) || '');
+    // await: si onEnviar llama a la API, se espera su respuesta antes de mostrar el error
+    setErrorGeneral((await onEnviar(f.valores)) || '');
   };
 
   const comunas = comunasDeRegion(f.valores.region);
@@ -65,13 +73,13 @@ export default function FormularioUsuario({ modo = 'registro', inicial = null, o
           />
         </Col>
         <Col md={6}>
-          <CampoFormulario id="u-fecha" etiqueta="Fecha de nacimiento" tipo="date" opcional {...comunPropiedades('fechaNacimiento')} />
+          <CampoFormulario id="u-fecha" etiqueta="Fecha de nacimiento" autoComplete="bday" tipo="date" ayuda="Debes ser mayor de 18 años." {...comunPropiedades('fechaNacimiento')} />
         </Col>
         <Col md={6}>
-          <CampoFormulario id="u-nombre" etiqueta="Nombre" maxLength={50} {...comunPropiedades('nombre')} />
+          <CampoFormulario id="u-nombre" etiqueta="Nombre" autoComplete="given-name" maxLength={50} {...comunPropiedades('nombre')} />
         </Col>
         <Col md={6}>
-          <CampoFormulario id="u-apellidos" etiqueta="Apellidos" maxLength={100} {...comunPropiedades('apellidos')} />
+          <CampoFormulario id="u-apellidos" etiqueta="Apellidos" autoComplete="family-name" maxLength={100} {...comunPropiedades('apellidos')} />
         </Col>
         <Col md={esRegistro ? 6 : 12}>
           <CampoFormulario
@@ -97,7 +105,7 @@ export default function FormularioUsuario({ modo = 'registro', inicial = null, o
           </Col>
         )}
         <Col md={6}>
-          <CampoFormulario id="u-telefono" etiqueta="Teléfono" tipo="tel" opcional placeholder="+56912345678" {...comunPropiedades('telefono')} />
+          <CampoFormulario id="u-telefono" etiqueta="Teléfono" autoComplete="tel" tipo="tel" placeholder="+56912345678" {...comunPropiedades('telefono')} />
         </Col>
         {pedirTipo && (
           <Col md={6}>
@@ -122,7 +130,7 @@ export default function FormularioUsuario({ modo = 'registro', inicial = null, o
           </CampoFormulario>
         </Col>
         <Col xs={12}>
-          <CampoFormulario id="u-direccion" etiqueta="Dirección" maxLength={300} {...comunPropiedades('direccion')} />
+          <CampoFormulario id="u-direccion" etiqueta="Dirección" autoComplete="street-address" maxLength={300} {...comunPropiedades('direccion')} />
         </Col>
       </Row>
       <Button type="submit" variant="dark">

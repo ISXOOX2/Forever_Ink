@@ -1,4 +1,7 @@
-// La sesión va en sessionStorage, sin la contraseña.
+/**
+ * Guarda quién inició sesión usando sessionStorage (se borra al cerrar la pestaña).
+ * Nunca se guarda la contraseña: solo los datos públicos del usuario.
+ */
 export const CLAVE_SESION = 'foreverInk_sesion';
 
 export function leerSesion() {

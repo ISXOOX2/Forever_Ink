@@ -1,3 +1,10 @@
+// ── PARA EXPLICAR (defensa) ───────────────────────────────────────────────
+// • Cada <input> es CONTROLADO: su value viene del estado (f.valores) y onChange lo actualiza.
+// • useFormulario es un HOOK PERSONALIZADO (src/utils/useFormulario.js): guarda valores, errores y qué campos tocó.
+// • Los errores aparecen en tiempo real: al escribir o al salir del campo (onBlur).
+// • Al enviar: preventDefault() evita recargar la página; si hay errores no se envía.
+// • onEnviar llega por PROPS: este componente no sabe cómo se inicia sesión, solo avisa al padre.
+// ───────────────────────────────────────────────────────────────────────────
 import { useState } from 'react';
 import { Alert, Form } from 'react-bootstrap';
 import Boton from '../atomos/Boton.jsx';
@@ -5,15 +12,19 @@ import CampoFormulario from '../moleculas/CampoFormulario.jsx';
 import useFormulario from '../../utils/useFormulario.js';
 import { validarFormularioLogin } from '../../utils/validaciones.js';
 
-// onEnviar devuelve '' si todo salió bien o el mensaje de error.
+/**
+ * Formulario de inicio de sesión.
+ * Props: onEnviar(valores) -> devuelve '' si todo salió bien o el mensaje de error a mostrar.
+ */
 export default function FormularioLogin({ onEnviar }) {
   const f = useFormulario({ correo: '', password: '' }, validarFormularioLogin);
   const [errorGeneral, setErrorGeneral] = useState('');
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     if (!f.intentarEnviar()) return;
-    setErrorGeneral(onEnviar(f.valores) || '');
+    // await: si onEnviar llama a la API, se espera su respuesta antes de mostrar el error
+    setErrorGeneral((await onEnviar(f.valores)) || '');
   };
 
   return (
