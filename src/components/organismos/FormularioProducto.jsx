@@ -4,28 +4,32 @@ import CampoFormulario from '../moleculas/CampoFormulario.jsx';
 import useFormulario from '../../utils/useFormulario.js';
 import { validarFormularioProducto } from '../../utils/validaciones.js';
 import { IMAGENES_DISENO } from '../../data/imagenes.js';
+import { TAMANO_MAX_CM, TAMANO_MIN_CM } from '../../data/estudio.js';
+import { siguienteCodigoProducto } from '../../services/productosService.js';
 
 const VACIO = {
-  codigo: '', nombre: '', descripcion: '', categoriaId: '', precio: '', precioOferta: '', stock: '', stockCritico: '',
-  tamano: '', duracionHoras: '', zonas: '', nivelDolor: '2', colorTinta: 'Negro', destacado: false,
+  codigo: '', nombre: '', descripcion: '', categoriaId: '', precio: '', precioOferta: '',
+  anchoCm: '', altoCm: '', duracionHoras: '', zonas: '', nivelDolor: '2', colorTinta: 'Negro', destacado: false,
   imagen: IMAGENES_DISENO[0].valor,
 };
 
-// Formulario del mantenedor de productos (crear y editar). onEnviar(valores) -> '' o mensaje de error.
+/** Formulario del mantenedor de productos (crear y editar). onEnviar(valores) -> '' o mensaje de error. */
 export default function FormularioProducto({ inicial = null, categorias, onEnviar }) {
   const partida = inicial
     ? Object.fromEntries(Object.keys(VACIO).map((k) => [k, inicial[k] ?? VACIO[k]]))
     : VACIO;
+  // El código lo asigna el sistema: al crear se muestra el siguiente; al editar, el que ya tiene.
+  const codigo = inicial ? inicial.codigo : siguienteCodigoProducto();
   const f = useFormulario(
-    { ...partida, categoriaId: String(partida.categoriaId ?? '') },
+    { ...partida, codigo, categoriaId: String(partida.categoriaId ?? '') },
     validarFormularioProducto,
   );
   const [errorGeneral, setErrorGeneral] = useState('');
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     if (!f.intentarEnviar()) return;
-    setErrorGeneral(onEnviar(f.valores) || '');
+    setErrorGeneral((await onEnviar(f.valores)) || ''); // await: puede ir a la API
   };
 
   const p = (campo) => ({
@@ -36,7 +40,12 @@ export default function FormularioProducto({ inicial = null, categorias, onEnvia
     <Form onSubmit={enviar} noValidate aria-label="Formulario de diseño">
       {errorGeneral && <Alert variant="danger" role="alert">{errorGeneral}</Alert>}
       <Row>
-        <Col md={4}><CampoFormulario id="p-codigo" etiqueta="Código" maxLength={10} {...p('codigo')} /></Col>
+        <Col md={4}>
+          <CampoFormulario
+            id="p-codigo" etiqueta="Código" readOnly {...p('codigo')}
+            ayuda={inicial ? 'El código no se puede cambiar.' : 'Se asigna automáticamente.'}
+          />
+        </Col>
         <Col md={8}><CampoFormulario id="p-nombre" etiqueta="Nombre" maxLength={100} {...p('nombre')} /></Col>
         <Col xs={12}><CampoFormulario id="p-descripcion" etiqueta="Descripción" tipo="textarea" rows={3} maxLength={500} opcional {...p('descripcion')} /></Col>
         <Col md={4}>
@@ -47,9 +56,9 @@ export default function FormularioProducto({ inicial = null, categorias, onEnvia
         </Col>
         <Col md={4}><CampoFormulario id="p-precio" etiqueta="Precio (CLP)" tipo="number" min={0} {...p('precio')} /></Col>
         <Col md={4}><CampoFormulario id="p-oferta" etiqueta="Precio de oferta" tipo="number" min={0} opcional {...p('precioOferta')} /></Col>
-        <Col md={4}><CampoFormulario id="p-stock" etiqueta="Stock (cupos)" tipo="number" min={0} {...p('stock')} /></Col>
-        <Col md={4}><CampoFormulario id="p-critico" etiqueta="Stock crítico" tipo="number" min={0} opcional {...p('stockCritico')} ayuda="Se alerta cuando el stock es igual o menor." /></Col>
-        <Col md={4}><CampoFormulario id="p-tamano" etiqueta="Tamaño" placeholder="7 x 6 cm" opcional {...p('tamano')} /></Col>
+        {/* Tamaño en dos campos numéricos: ancho y alto, siempre en centímetros */}
+        <Col xs={6} md={2}><CampoFormulario id="p-ancho" etiqueta="Ancho (cm)" tipo="number" min={TAMANO_MIN_CM} max={TAMANO_MAX_CM} step={0.5} {...p('anchoCm')} /></Col>
+        <Col xs={6} md={2}><CampoFormulario id="p-alto" etiqueta="Alto (cm)" tipo="number" min={TAMANO_MIN_CM} max={TAMANO_MAX_CM} step={0.5} {...p('altoCm')} /></Col>
         <Col md={4}><CampoFormulario id="p-duracion" etiqueta="Duración (horas)" tipo="number" min={0.5} step={0.5} opcional {...p('duracionHoras')} /></Col>
         <Col md={4}><CampoFormulario id="p-zonas" etiqueta="Zonas recomendadas" opcional {...p('zonas')} /></Col>
         <Col md={4}>

@@ -4,7 +4,7 @@ import {
 } from '../../services/reportesService.js';
 import { formatoCLP } from '../../utils/formato.js';
 
-// Reportes con las órdenes pagadas
+/** Reportes simples calculados con las órdenes pagadas (tablas con barras de proporción de Bootstrap). */
 export default function Reportes() {
   const resumen = resumenGeneral();
   const porCategoria = ventasPorCategoria();

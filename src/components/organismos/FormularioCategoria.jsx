@@ -4,7 +4,7 @@ import CampoFormulario from '../moleculas/CampoFormulario.jsx';
 import useFormulario from '../../utils/useFormulario.js';
 import { validarFormularioCategoria } from '../../utils/validaciones.js';
 
-// Formulario de categoría (estilo). onEnviar(valores) -> '' o mensaje de error.
+/** Formulario de categoría (estilo). onEnviar(valores) -> '' o mensaje de error. */
 export default function FormularioCategoria({ inicial = null, onEnviar, onCancelar }) {
   const f = useFormulario(
     { nombre: inicial?.nombre ?? '', descripcion: inicial?.descripcion ?? '' },
@@ -12,10 +12,10 @@ export default function FormularioCategoria({ inicial = null, onEnviar, onCancel
   );
   const [errorGeneral, setErrorGeneral] = useState('');
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault();
     if (!f.intentarEnviar()) return;
-    setErrorGeneral(onEnviar(f.valores) || '');
+    setErrorGeneral((await onEnviar(f.valores)) || ''); // await: puede ir a la API
   };
 
   return (

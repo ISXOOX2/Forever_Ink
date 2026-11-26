@@ -1,4 +1,4 @@
-// Servicio de categorías (estilos de tatuaje).
+/** Servicio de categorías (estilos de tatuaje). */
 import { listar, obtenerPorId, crear, actualizar, eliminar } from '../data/db.js';
 
 const COLECCION = 'categorias';
@@ -31,7 +31,7 @@ export function crearCategoria(datos) {
   const categoria = crear(COLECCION, {
     nombre: datos.nombre.trim(),
     descripcion: (datos.descripcion || '').trim(),
-    imagen: datos.imagen || 'neko-chibi',
+    imagen: datos.imagen || 'panda-globo-corazon',
   });
   return { ok: true, categoria };
 }
@@ -45,7 +45,7 @@ export function actualizarCategoria(id, datos) {
   return categoria ? { ok: true, categoria } : { ok: false, error: 'La categoría no existe.' };
 }
 
-// No se puede eliminar una categoría que todavía tiene productos asociados.
+/** No se puede eliminar una categoría que todavía tiene productos asociados. */
 export function eliminarCategoria(id) {
   const cantidad = contarProductosDeCategoria(id);
   if (cantidad > 0) {

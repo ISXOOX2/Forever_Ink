@@ -4,7 +4,11 @@ import { Button, Col, Container, Nav, Row } from 'react-bootstrap';
 import Logo from '../atomos/Logo.jsx';
 import Cargando from '../atomos/Cargando.jsx';
 
-// Estructura del panel. El vendedor solo ve Órdenes y Productos.
+/**
+ * PLANTILLA · Estructura del panel: menú lateral + contenido (<Outlet/>). El menú depende del rol:
+ *  - Administrador: todo.
+ *  - Vendedor: solo Órdenes y Productos (este último en modo lectura).
+ */
 export default function LayoutAdmin({ usuario, onCerrarSesion }) {
   const navegar = useNavigate();
   const esAdmin = usuario.tipo === 'Administrador';
@@ -32,7 +36,9 @@ export default function LayoutAdmin({ usuario, onCerrarSesion }) {
               {esAdmin && <Nav.Link as={NavLink} to="/admin" end>Dashboard</Nav.Link>}
               <Nav.Link as={NavLink} to="/admin/ordenes">Órdenes</Nav.Link>
               <Nav.Link as={NavLink} to="/admin/productos">Productos</Nav.Link>
+              <Nav.Link as={NavLink} to="/admin/proyectos">Proyectos y mensajes</Nav.Link>
               {esAdmin && <Nav.Link as={NavLink} to="/admin/categorias">Categorías</Nav.Link>}
+              {esAdmin && <Nav.Link as={NavLink} to="/admin/insumos">Insumos</Nav.Link>}
               {esAdmin && <Nav.Link as={NavLink} to="/admin/usuarios">Usuarios</Nav.Link>}
               {esAdmin && <Nav.Link as={NavLink} to="/admin/reportes">Reportes</Nav.Link>}
               <Nav.Link as={NavLink} to="/perfil">Mi perfil</Nav.Link>
@@ -40,7 +46,7 @@ export default function LayoutAdmin({ usuario, onCerrarSesion }) {
             </Nav>
           </Col>
           <Col xs={12} lg={10} className="py-4 px-lg-4">
-            {/* mientras carga la página lazy se muestra <Cargando /> */}
+            {/* Las páginas del panel son lazy: mientras se descargan se muestra <Cargando />. */}
             <Suspense fallback={<Cargando />}>
               <Outlet />
             </Suspense>
