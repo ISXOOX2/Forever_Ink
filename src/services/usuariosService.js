@@ -1,11 +1,11 @@
-// Servicio de usuarios: CRUD, autenticación e historial de compras.
+/** Servicio de usuarios: CRUD, autenticación e historial de compras. */
 import { listar, obtenerPorId, crear, actualizar, eliminar } from '../data/db.js';
 
 const COLECCION = 'usuarios';
 
 export const TIPOS_USUARIO = ['Administrador', 'Vendedor', 'Cliente'];
 
-// Devuelve el usuario sin la contraseña (para guardarlo en la sesión).
+/** Devuelve el usuario sin la contraseña (para guardarlo en la sesión). */
 export function usuarioPublico(usuario) {
   if (!usuario) return null;
   const { password, ...resto } = usuario; // eslint-disable-line no-unused-vars
@@ -20,7 +20,7 @@ export function obtenerUsuario(id) {
   return obtenerPorId(COLECCION, id);
 }
 
-// Inicio de sesión: busca el correo y la contraseña. Devuelve el usuario o null.
+/** Inicio de sesión: busca el correo y la contraseña. Devuelve el usuario o null. */
 export function autenticar(correo, password) {
   const buscado = String(correo || '').trim().toLowerCase();
   const usuario = listarUsuarios().find(
@@ -29,7 +29,7 @@ export function autenticar(correo, password) {
   return usuario ? usuarioPublico(usuario) : null;
 }
 
-// Deja solo los campos que se guardan (quita confirmarCorreo, confirmarPassword, etc.).
+/** Deja solo los campos que se guardan (quita confirmarCorreo, confirmarPassword, etc.). */
 function limpiarDatos(datos) {
   return {
     run: String(datos.run).trim().toUpperCase(),
@@ -60,12 +60,12 @@ export function crearUsuario(datos) {
   return { ok: true, usuario: crear(COLECCION, limpio) };
 }
 
-// Registro desde la tienda: siempre crea un usuario de tipo Cliente.
+/** Registro desde la tienda: siempre crea un usuario de tipo Cliente. */
 export function registrarCliente(datos) {
   return crearUsuario({ ...datos, tipo: 'Cliente' });
 }
 
-// Si la contraseña viene vacía se conserva la que ya tenía el usuario.
+/** Si la contraseña viene vacía se conserva la que ya tenía el usuario. */
 export function actualizarUsuario(id, datos) {
   const existente = obtenerUsuario(id);
   if (!existente) return { ok: false, error: 'El usuario no existe.' };
@@ -75,7 +75,7 @@ export function actualizarUsuario(id, datos) {
   return { ok: true, usuario: actualizar(COLECCION, id, limpio) };
 }
 
-// No se puede eliminar a uno mismo ni al último administrador.
+/** No se puede eliminar a uno mismo ni al último administrador. */
 export function eliminarUsuario(id, idUsuarioActual = null) {
   if (Number(id) === Number(idUsuarioActual)) {
     return { ok: false, error: 'No puedes eliminar tu propia cuenta.' };
@@ -90,7 +90,7 @@ export function eliminarUsuario(id, idUsuarioActual = null) {
   return { ok: true };
 }
 
-// Historial de compras: órdenes del usuario (más recientes primero).
+/** Historial de compras: órdenes del usuario (más recientes primero). */
 export function historialDeCompras(usuarioId) {
   return listar('ordenes')
     .filter((o) => o.usuarioId === Number(usuarioId))

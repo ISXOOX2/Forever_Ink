@@ -1,7 +1,23 @@
+// ── PARA EXPLICAR (defensa) ───────────────────────────────────────────────
+// • Un hook personalizado es una función que empieza con "use" y reúne useState para reutilizarlos.
+// • Así los 7 formularios del proyecto (login, registro, checkout...) no repiten el mismo código.
+// • Tres estados: valores (lo que escribe), tocados (campos que ya visitó) e intentoEnvio.
+// • visibles = errores que se muestran: solo de campos tocados, o todos si ya intentó enviar.
+// ───────────────────────────────────────────────────────────────────────────
 import { useState } from 'react';
 
-// Hook para los formularios: guarda los valores y muestra los errores de los campos que ya
-// se tocaron (o de todos si se intentó enviar).
+/**
+ * Hook personalizado para manejar formularios con validación en tiempo real.
+ *
+ *  - valores   : estado con lo que el usuario va escribiendo.
+ *  - errores   : todos los errores actuales (los calcula la función "validar").
+ *  - visibles  : solo los errores que se muestran en pantalla: los de campos que el usuario
+ *                ya tocó, o todos si ya intentó enviar el formulario.
+ *
+ * Uso típico dentro de un componente:
+ *    const f = useFormulario({ correo: '' }, validarFormularioLogin);
+ *    <input name="correo" value={f.valores.correo} onChange={f.manejarCambio} onBlur={f.manejarBlur} />
+ */
 export default function useFormulario(valoresIniciales, validar) {
   const [valores, setValores] = useState(valoresIniciales);
   const [tocados, setTocados] = useState({});
@@ -29,7 +45,7 @@ export default function useFormulario(valoresIniciales, validar) {
     setTocados((actuales) => ({ ...actuales, [name]: true }));
   };
 
-  // Marca el intento de envío (muestra todos los errores). Devuelve true si no hay errores.
+  /** Marca el intento de envío (muestra todos los errores). Devuelve true si no hay errores. */
   const intentarEnviar = () => {
     setIntentoEnvio(true);
     return Object.keys(errores).length === 0;
